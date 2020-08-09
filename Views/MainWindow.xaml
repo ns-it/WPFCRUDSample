@@ -1,0 +1,133 @@
+﻿<Window x:Class="WPFCRUDSample.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPFCRUDSample.Views" 
+        xmlns:viewmodels="clr-namespace:WPFCRUDSample.ViewModels"
+        mc:Ignorable="d"
+        Title="DataGridCRUD" ScrollViewer.CanContentScroll="True" 
+        WindowStyle="SingleBorderWindow" SizeToContent="Height" 
+        WindowStartupLocation="CenterScreen" Margin="0,0,-1,0" 
+        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" 
+        Width="600">
+
+    <Window.DataContext>
+        <viewmodels:MainViewModel/>
+    </Window.DataContext>
+
+
+    <Grid Margin="80,20,80,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0">ID:</Label>
+        <TextBox Grid.Row="0" Grid.Column="1" Margin="10,2,10,2" 
+                 x:Name="stuID" IsEnabled="False" 
+                 Text="{Binding StudentRecord.Id, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+        <Label Grid.Row="1" Grid.Column="0">Name:</Label>
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="stuName" Margin="10,2,10,2" 
+                 Text="{Binding StudentRecord.Name, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                 IsEnabled="{Binding IsEditModeOn}"/>
+
+        <Label Grid.Row="2" Grid.Column="0">Address:</Label>
+        <TextBox Grid.Row="2" Grid.Column="1"
+                 x:Name="stuAddress"
+                 Height="40"  Margin="10,2,10,2" 
+                 Text="{Binding StudentRecord.Address, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                 IsEnabled="{Binding IsEditModeOn}"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="2">
+
+            <Button x:Name="DeleteButton" Content="Delete"  
+                    Height="20" VerticalAlignment="Top"  Margin="10,5,10,15" Foreground="White" Background="#FFCB5555" 
+                    Command="{Binding DeleteCommand}" CommandParameter="{Binding ElementName=StudentsGrid,Path=SelectedItem}"  
+                    IsEnabled="{Binding ElementName=StudentsGrid,Path=SelectedItems.Count}"/>
+
+
+            <Button x:Name="EditButton" Content="Edit" 
+                    Height="20" VerticalAlignment="Top"  Margin="10,5,10,15" Foreground="White" Background="#FFC6CB55" 
+                    IsEnabled="{Binding ElementName=StudentsGrid,Path=SelectedItems.Count}"       
+                    Command="{Binding StartEditCommand,UpdateSourceTrigger=PropertyChanged}" CommandParameter="Edit"/>
+
+
+            <Button x:Name="AddButton" Content="Add" 
+                    Height="20" VerticalAlignment="Top"  Margin="10,5,10,15" Foreground="White" Background="#FF65CB55" 
+                    Command="{Binding StartEditCommand,UpdateSourceTrigger=PropertyChanged}" CommandParameter="Add"
+                    IsEnabled="{Binding IsEditModeOff,UpdateSourceTrigger=PropertyChanged}"/>
+
+
+            <Button  x:Name="SaveButton" Content="Save" IsDefault="True" 
+                     Margin="10,5,10,15" 
+                     IsEnabled="{Binding IsEditModeOn, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" 
+                     Command="{Binding SaveCommand, UpdateSourceTrigger=PropertyChanged}"/>
+            
+            <Button  x:Name="CancelButton" Content="Cancel" 
+                     Margin="10,5,10,15" 
+                     Command="{Binding CancelCommand, UpdateSourceTrigger=PropertyChanged}"
+                     IsEnabled="{Binding IsEditModeOn,UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+        
+        <Label Grid.Row="4" Grid.Column="0">Search:</Label>
+        
+        <StackPanel Orientation="Horizontal" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <TextBox x:Name="Search"  Margin="10,2,9,10" Text="{Binding SearchField,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Center" Width="200">
+                <TextBox.InputBindings>
+                    <KeyBinding Command="{Binding Path=SearchCommand}" CommandParameter="{Binding ElementName=Search, Path=Text}" Key="Return" />
+                </TextBox.InputBindings>
+            </TextBox>
+            <Button x:Name="AddModalButton"  Height="20" VerticalAlignment="Top"  Margin="10,5,10,15" Foreground="White" Background="#FF65CB55" 
+                    Content="AddModal" Click="AddModalButton_Click"/>
+
+            <Button x:Name="EditModalButton"  Height="20" VerticalAlignment="Top"  Margin="10,5,10,15" Foreground="White" Background="#FFC6CB55" 
+                    Content="EditModal" Click="EditModalButton_Click"
+                    IsEnabled="{Binding ElementName=StudentsGrid,Path=SelectedItems.Count}"/>
+
+        </StackPanel>
+
+        <DataGrid x:Name="StudentsGrid" ItemsSource="{Binding StudentsListView,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                  Grid.ColumnSpan="2" Grid.Row="5" Height="180"
+                  ScrollViewer.CanContentScroll="True"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  AutoGenerateColumns="False" IsReadOnly="True">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header ="ID" Binding="{Binding Id}"/>
+                <DataGridTextColumn Header ="Name" Binding="{Binding Name}"/>
+                <DataGridTextColumn Header ="Address" Binding="{Binding Address}" CanUserSort="True" />
+                <DataGridTemplateColumn Header ="Action">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="5,0,5,0">
+                                <Button x:Name="InlineEdit" Content="Edit" Margin="1,1,1,1" Foreground="White" Background="#FFC9B953"
+                                        Click="EditModalButton_Click"/>
+                                <Button x:Name="InlineDelete" Content="Delete" Margin="1,1,1,1"  Foreground="White" Background="#FFCB5555" 
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=Window},Path=DataContext.DeleteCommand, Mode=OneWay}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=DataGrid},Path=SelectedItem}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+            </DataGrid.Columns>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="PreviewMouseLeftButtonUp" Handler="DataGridRow_PreviewMouseLeftButtonUp"/>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+    </Grid>
+</Window>
