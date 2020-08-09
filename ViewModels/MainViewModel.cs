@@ -107,7 +107,7 @@ namespace WPFCRUDSample.ViewModels
         public RelayCommand DeleteCommand { get; private set; }
         public RelayCommand SearchCommand { get; private set; }
 
-
+        public RelayCommand SelectedItemChangedCommand { get; private set; }
 
 
         public MainViewModel()
@@ -139,6 +139,7 @@ namespace WPFCRUDSample.ViewModels
             DeleteCommand = new RelayCommand(DeleteAction, null);
 
             SearchCommand = new RelayCommand(SearchAction, null);
+            SelectedItemChangedCommand = new RelayCommand(SelectedItemChangedAction, null);
 
         }
 
@@ -153,6 +154,22 @@ namespace WPFCRUDSample.ViewModels
             {
                 ((INotifyCollectionChanged)StudentsList).CollectionChanged -= value;
             }
+        }
+
+
+
+        public void SelectedItemChangedAction(object student)
+        {
+            StudentRecord = student as Student;
+
+            //Student s = student as Student;
+
+            //StudentRecord.Id = s.Id;
+            //StudentRecord.Name = s.Name;
+            //StudentRecord.Address = s.Address;
+
+            //StudentsListView.Refresh();
+
         }
 
         public void AddAction()
@@ -270,10 +287,7 @@ namespace WPFCRUDSample.ViewModels
         protected void OnPropertyChanged(string name)
 
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
 

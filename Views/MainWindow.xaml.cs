@@ -12,6 +12,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Threading;
+using System.Globalization;
 
 namespace WPFCRUDSample.Views
 {
@@ -23,18 +25,29 @@ namespace WPFCRUDSample.Views
         public MainWindow()
         {
             InitializeComponent();
+
+
+            //Thread.CurrentThread.CurrentCulture = new CultureInfo("ar-SY");
+
+            string currentLanguage =
+                System.Globalization.CultureInfo.CurrentUICulture.IetfLanguageTag;
+
+            ////MainUI.Language = System.Windows.Markup.XmlLanguage.GetLanguage("ar-SY");
+
+            if (currentLanguage.ToLower().StartsWith("ar"))
+            {
+                MainUI.FlowDirection = FlowDirection.RightToLeft;
+            }
+            else
+            {
+                MainUI.FlowDirection = FlowDirection.LeftToRight;
+            }
+
+            //MessageBox.Show(System.Globalization.CultureInfo.CurrentCulture.IetfLanguageTag);
+            //MessageBox.Show(WPFCRUDSample.Properties.Resources.Title);
+
         }
 
-        private void DataGridRow_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            var item = (DataGridRow)sender;
-            Student student = (Student)item.DataContext;
-
-            stuID.Text = student.Id.ToString();
-            stuName.Text = student.Name.ToString();
-            stuAddress.Text = student.Address.ToString();
-
-        }
 
         private void AddModalButton_Click(object sender, RoutedEventArgs e)
         {
