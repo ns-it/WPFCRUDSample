@@ -8,10 +8,8 @@
         mc:Ignorable="d"
         Title="UpdateStudentView" Height="300" Width="300" WindowStartupLocation="CenterScreen" Topmost="True" ShowInTaskbar="False">
 
-
-
     <Window.DataContext>
-        <Models:Student/>
+        <ViewModels:StudentViewModel/>
     </Window.DataContext>
 
 

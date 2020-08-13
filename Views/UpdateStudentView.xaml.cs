@@ -27,17 +27,44 @@ namespace WPFCRUDSample.Views
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
-            Student student = (Student)DataContext;
-            if (Int32.Parse(stuID.Text) == 0)
-            {
-                
+            StudentViewModel student = (StudentViewModel) DataContext;
 
-                MainViewModel.StudentsList.Add(new Student() { Name = student.Name, Address = student.Address });
+
+            // ------- Edit Action
+
+            if (!student.Id.Equals(0))
+            {
+                Student s = MainViewModel.db.Students.Find(student.Id);
+
+                s.Name = student.Name;
+                s.Address = student.Address;
+
+                MainViewModel.db.SaveChanges();
+                MainViewModel.StudentsListView.Refresh();
+            }
+            else
+            {
+                Student s = MainViewModel.db.Students.Add(new Student() { Name = student.Name, Address = student.Address }).Entity;
+                MainViewModel.StudentsList.Add(new StudentViewModel(s));
+                MainViewModel.db.SaveChanges();
                 MainViewModel.StudentsListView.Refresh();
             }
 
-            else
-                MainViewModel.db.SaveChanges();
+            //{
+            //    //    StudentViewModel vm =  new StudentViewModel() { Name = student.Name, Address = student.Address };
+            //    //MainViewModel.StudentsList.Add(vm);
+            //    //MainViewModel.StudentsList.Add(student);
+            //    Student s = db.Students.Add(new Student() { Name = StudentRecord.Name, Address = StudentRecord.Address }).Entity;
+
+            //    MainViewModel.StudentsList.Add(student);
+            //    MainViewModel.db.SaveChanges();
+
+            //    MainViewModel.StudentsListView.Refresh();
+            //}
+
+            //else
+            //    MainViewModel.db.SaveChanges();
+            DialogResult = true;
             Close();
 
         }

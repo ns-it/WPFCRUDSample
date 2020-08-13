@@ -18,121 +18,85 @@ namespace WPFCRUDSample.ViewModels
         private bool isEditModeOn;
         private bool isEditModeOff;
 
-        private Student _studentRecord;
-        //private string _idField;
-        //private string _nameField;
-        //private string _addressField;
+        private StudentViewModel _studentRecord;
+        private StudentViewModel _selectedStudent;
 
-        public Student StudentRecord {
+        public StudentViewModel StudentRecord
+        {
             get { return _studentRecord; }
-            set
-            {
-                _studentRecord = value;
-                OnPropertyChanged("StudentRecord");
-            }
+            set { _studentRecord = value; OnPropertyChanged("StudentRecord"); }
         }
 
+        public StudentViewModel SelectedStudent
+        {
+            get { return _selectedStudent; }
+            set { _selectedStudent = value; OnPropertyChanged("SelectedStudent"); }
+        }
+
+
         public static WPFTestContext db = new WPFTestContext();
-
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public static ObservableCollection<Student> StudentsList { get; set; }
+        public static ObservableCollection<StudentViewModel> StudentsList { get; set; }
         public static ICollectionView StudentsListView { get; set; }
-
 
         public bool IsEditModeOn
         {
             get { return isEditModeOn; }
-            set
-            {
-                isEditModeOn = value;
-                OnPropertyChanged("IsEditModeOn");
-            }
+            set { isEditModeOn = value; OnPropertyChanged("IsEditModeOn"); }
         }
 
         public bool IsEditModeOff
         {
             get { return isEditModeOff; }
-            set
-            {
-                isEditModeOff = value;
-                OnPropertyChanged("IsEditModeOff");
-            }
+            set { isEditModeOff = value; OnPropertyChanged("IsEditModeOff"); }
         }
 
-        //public string IdField {
-        //    get { return _idField; }
-        //    set
-        //    {
-        //        _idField = value;
-        //        OnPropertyChanged("IdField");
-        //    }
-        //}
-        //public string NameField
-        //{
-        //    get { return _nameField; }
-        //    set
-        //    {
-        //        _nameField = value;
-        //        OnPropertyChanged("NameField");
-        //    }
-        //}
-        //public string AddressField
-        //{
-        //    get { return _addressField; }
-        //    set
-        //    {
-        //        _addressField = value;
-        //        OnPropertyChanged("AddressField");
-        //    }
-        //}
-
-              //public string AddressField
-        //{
-        //    get { return _addressField; }
-        //    set
-        //    {
-        //        _addressField = value;
-        //        OnPropertyChanged("AddressField");
-        //    }
-        //}
         public string SearchField { get; set; }
 
-
-        public NoParamsRelayCommand SaveCommand { get; private set; }
-        public NoParamsRelayCommand AddCommand { get; private set; }
+        public RelayCommand SaveCommand { get; private set; }
+        //public NoParamsRelayCommand AddCommand { get; private set; }
         public RelayCommand StartEditCommand { get; private set; }
-        public NoParamsRelayCommand CancelCommand { get; private set; }
-        public RelayCommand EditCommand { get; private set; }
+        public RelayCommand CancelCommand { get; private set; }
+        //public RelayCommand EditCommand { get; private set; }
         public RelayCommand DeleteCommand { get; private set; }
         public RelayCommand SearchCommand { get; private set; }
-
         public RelayCommand SelectedItemChangedCommand { get; private set; }
 
 
         public MainViewModel()
         {
 
-            StudentRecord = new Student();
+            StudentRecord = new StudentViewModel() { Id = 0, Name = "", Address = "" };
 
-            //IdField = "0";
-            //NameField = "nameTest";
-            //AddressField = "addressTest";
             SearchField = "";
 
             IsEditModeOn = false;
             IsEditModeOff = true;
 
             db.Students.Load();
-            StudentsList = db.Students.Local.ToObservableCollection();
+
+            StudentsList = new ObservableCollection<StudentViewModel>();
+
+            foreach (Student s in db.Students)
+            {
+                StudentsList.Add(new StudentViewModel(s));
+            }
+
+            //StudentsList = 
+
+            //db.Students.Local.ToObservableCollection();
+
+
+
             StudentsList.CollectionChanged += StudentsList_CollectionChanged;
 
             StudentsListView = CollectionViewSource.GetDefaultView(StudentsList);
 
-            AddCommand = new NoParamsRelayCommand(AddAction);
-            SaveCommand = new NoParamsRelayCommand(SaveAction);
-            StartEditCommand = new RelayCommand(StartEditAction,null);
-            CancelCommand = new NoParamsRelayCommand(StopEditAction);
+            //AddCommand = new NoParamsRelayCommand(AddAction);
+
+            SaveCommand = new RelayCommand(SaveAction, null);
+            StartEditCommand = new RelayCommand(StartEditAction, null);
+            CancelCommand = new RelayCommand(StopEditAction, null);
 
 
             //EditCommand = new RelayCommand(EditAction, null);
@@ -160,45 +124,49 @@ namespace WPFCRUDSample.ViewModels
 
         public void SelectedItemChangedAction(object student)
         {
-            StudentRecord = student as Student;
+            //StudentRecord = student as StudentViewModel;
 
-            //Student s = student as Student;
 
-            //StudentRecord.Id = s.Id;
-            //StudentRecord.Name = s.Name;
-            //StudentRecord.Address = s.Address;
+            if (SelectedStudent!=null)
+            {
+                StudentRecord.Id = SelectedStudent.Id;
+                StudentRecord.Name = SelectedStudent.Name;
+                StudentRecord.Address = SelectedStudent.Address;
+            }
+
+            else
+            {
+                StudentRecord.Id = 0;
+                StudentRecord.Name = "";
+                StudentRecord.Address = "";
+            }
+
 
             //StudentsListView.Refresh();
 
         }
 
-        public void AddAction()
-        {
-            //StudentsList.Add(new Student() { Name = NameField, Address = AddressField });
-            StudentsList.Add(new Student() { Name = StudentRecord.Name, Address = StudentRecord.Address });
-        }
-
-        //public void EditAction(object student)
+        //public void AddAction()
         //{
-        //    Student s = student as Student;
-
-        //    s.Name = NameField;
-        //    s.Address = AddressField;
-
-        //    db.Students.Update(s);
-        //    db.SaveChanges();
-
-        //    StudentsListView.Refresh();
-
+        //    //StudentsList.Add(new StudentViewModel() { Name = NameField, Address = AddressField });
+        //    StudentsList.Add(new StudentViewModel() { Name = StudentRecord.Name, Address = StudentRecord.Address });
         //}
 
-
-        public void SaveAction()
+        public void SaveAction(object selectedItem)
         {
 
+            //Edit Action
             if (!StudentRecord.Id.Equals(0))
             {
+                //StudentRecord.UpdateStudent();
+
                 Student s = db.Students.Find(StudentRecord.Id);
+
+
+
+                //StudentViewModel vm = new StudentViewModel(s);
+
+                //StudentsList.Remove(vm);
 
                 //s.Name = NameField;
                 //s.Address = AddressField;
@@ -206,27 +174,53 @@ namespace WPFCRUDSample.ViewModels
                 s.Name = StudentRecord.Name;
                 s.Address = StudentRecord.Address;
 
+
+                //StudentsList.Remove(vm);
+                //StudentsList.Add(StudentRecord);
+
+
+
                 db.Students.Update(s);
                 db.SaveChanges();
 
+
                 StudentsListView.Refresh();
+
+
             }
             else
             {
-                //StudentsList.Add(new Student() { Name = NameField, Address = AddressField }); 
-                StudentsList.Add(new Student() { Name = StudentRecord.Name, Address = StudentRecord.Address });
-                StudentsListView.Refresh(); }
+                //StudentsList.Add(new StudentViewModel() { Name = NameField, Address = AddressField }); 
+
+
+                //db.Students.Add(new Student() { Name = StudentRecord.Name, Address = StudentRecord.Address });
+
+                //StudentViewModel vm = new StudentViewModel() { Name = StudentRecord.Name, Address = StudentRecord.Address };
+
+                //StudentsList.Add();
+                Student s = db.Students.Add(new Student() { Name = StudentRecord.Name, Address = StudentRecord.Address }).Entity;
+                StudentsList.Add(new StudentViewModel(s));
+                db.SaveChanges();
+
+                StudentsListView.Refresh();
+
+                SelectedStudent = null;
+            }
 
             IsEditModeOff = true;
             IsEditModeOn = false;
 
-            //IdField = "";
-            //NameField = "";
-            //AddressField = "";
+            //StudentRecord.Id = 0;
+            //StudentRecord.Name = "";
+            //StudentRecord.Address = "";
 
-            //StudentRecord = new Student();
+            //StudentViewModel student = selectedItem as StudentViewModel;
 
+            //StudentRecord.Id = student.Id;
+            //StudentRecord.Name = student.Name;
+            //StudentRecord.Address = student.Address;
 
+            //SelectedStudent = null;
 
         }
 
@@ -250,27 +244,47 @@ namespace WPFCRUDSample.ViewModels
 
         }
 
-        public void StopEditAction()
+        public void StopEditAction(object selectedItem)
         {
-
             IsEditModeOff = true;
             IsEditModeOn = false;
 
+            //StudentViewModel student = selectedItem as StudentViewModel;
+
+            //StudentRecord.Id = student.Id;
+            //StudentRecord.Name = student.Name;
+            //StudentRecord.Address = student.Address;
+
+            StudentRecord.Id = SelectedStudent.Id;
+            StudentRecord.Name = SelectedStudent.Name;
+            StudentRecord.Address = SelectedStudent.Address;
         }
 
 
         public void DeleteAction(object item)
         {
-            Student student = item as Student;
-            StudentsList.Remove(student);
+            //StudentViewModel student = item as StudentViewModel;
+            //StudentsList.Remove(student);
+            //db.Students.Remove(student.Model);
+
+            StudentsList.Remove(SelectedStudent);
+            db.Students.Remove(SelectedStudent.Model);
+            db.SaveChanges();
         }
 
-
+        //public bool CanModify(object item)
+        //{
+        //    if (item != null)
+        //    {
+        //        if (item.ToString() == "Add") return true;
+        //    }
+        //    return SelectedStudent != null;
+        //}
 
         public bool Contains(object de)
         {
             bool accepted = false;
-            if (de is Student student)
+            if (de is StudentViewModel student)
             {
                 accepted = student.Name.Contains(SearchField) || student.Address.Contains(SearchField);
             }
@@ -295,7 +309,7 @@ namespace WPFCRUDSample.ViewModels
         private void StudentsList_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             MessageBox.Show("StudentsList_CollectionChanged");
-            db.SaveChanges();
+            //db.SaveChanges();
         }
 
 

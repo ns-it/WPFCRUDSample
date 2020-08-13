@@ -17,7 +17,7 @@
         x:Name="MainUI">
 
     <Window.DataContext>
-        <viewmodels:MainViewModel/>
+        <viewmodels:MainViewModel x:Name="VM"/>
     </Window.DataContext>
 
 
@@ -76,11 +76,11 @@
             <Button  x:Name="SaveButton" Content="{x:Static p:Resources.Save}" IsDefault="True" 
                      Margin="10,5,10,15" 
                      IsEnabled="{Binding IsEditModeOn, Mode=OneWay,UpdateSourceTrigger=PropertyChanged}" 
-                     Command="{Binding SaveCommand, UpdateSourceTrigger=PropertyChanged}"/>
+                     Command="{Binding SaveCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ElementName=StudentsGrid,Path=SelectedItem}"/>
 
             <Button  x:Name="CancelButton" Content="{x:Static p:Resources.Cancel}" 
                      Margin="10,5,10,15" 
-                     Command="{Binding CancelCommand, UpdateSourceTrigger=PropertyChanged}"
+                     Command="{Binding CancelCommand, UpdateSourceTrigger=PropertyChanged}" CommandParameter="{Binding ElementName=StudentsGrid,Path=SelectedItem}"
                      IsEnabled="{Binding IsEditModeOn,UpdateSourceTrigger=PropertyChanged}"/>
         </StackPanel>
 
@@ -106,13 +106,14 @@
                   ScrollViewer.CanContentScroll="True"
                   ScrollViewer.VerticalScrollBarVisibility="Auto"
                   ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                  AutoGenerateColumns="False" IsReadOnly="True">
+                  AutoGenerateColumns="False" IsReadOnly="True"
+                  SelectedItem="{Binding SelectedStudent}">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Header ="{x:Static p:Resources.Id}" Binding="{Binding Id}"/>
                 <DataGridTextColumn Header ="{x:Static p:Resources.Name}" Binding="{Binding Name}"/>
-                <DataGridTextColumn Header ="{x:Static p:Resources.Address}" Binding="{Binding Address}" CanUserSort="True" />
-                <DataGridTemplateColumn Header ="{x:Static p:Resources.Action}">
+                <DataGridTextColumn Header ="{x:Static p:Resources.Address}" Binding="{Binding Address}" Width="*" CanUserSort="True" />
+                <DataGridTemplateColumn Header ="{x:Static p:Resources.Action}" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="5,0,5,0">
@@ -141,5 +142,6 @@
             </i:Interaction.Triggers>
             
         </DataGrid>
+        
     </Grid>
 </Window>

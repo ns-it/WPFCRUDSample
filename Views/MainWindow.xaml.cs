@@ -57,11 +57,17 @@ namespace WPFCRUDSample.Views
 
         private void EditModalButton_Click(object sender, RoutedEventArgs e)
         {
+            StudentViewModel selectedItem = (StudentViewModel)StudentsGrid.SelectedItem;
             UpdateStudentView updateStudentView = new UpdateStudentView
             {
-                DataContext = StudentsGrid.SelectedItem
+                DataContext = new StudentViewModel() { Id = selectedItem.Id , Name = selectedItem.Name, Address = selectedItem.Address}
             };
-            updateStudentView.ShowDialog();
+            if (updateStudentView.ShowDialog()==true)
+            {
+                VM.StudentRecord.Id = selectedItem.Id;
+                VM.StudentRecord.Name = selectedItem.Name;
+                VM.StudentRecord.Address = selectedItem.Address;
+            };
         }
 
     }
